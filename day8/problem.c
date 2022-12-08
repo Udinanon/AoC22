@@ -18,7 +18,7 @@ int main(void)
 {
 
     FILE *fp; // open file
-    char crates_file[] = "./test.txt";
+    char crates_file[] = "./input.txt";
     if ((fp = fopen(crates_file, "r+")) == NULL)
     { // check for file access,
         printf("ERROR READING FILE %s", crates_file);
@@ -212,71 +212,36 @@ int compute_scenic_score(char **matrix, int x, int y, int size)
     int tmp_val = 0;
     for (int i = x+1; i < size; i++)
     {   
-        if(tmp_val == 0){
-            tmp_val = 1;
-        }
-
-        if (matrix[i][y] < base_height)
-        {
-            tmp_val++;
-        }
-        else
-        {
-            tmp_val--;
-            i = size;
+        tmp_val++;
+        if (matrix[i][y] >= base_height){
+            break;
         }
     }
     score *= tmp_val;
     tmp_val = 0;
     for (int i = x-1; i >= 0; i--)
     {
-        if (tmp_val == 0)
-        {
-            tmp_val = 1;
-        }
-        if (matrix[i][y] < base_height)
-        {
-            tmp_val++;
-        }
-        else{
-            tmp_val--;
-            i = -1;
+        tmp_val++;
+        if (matrix[i][y] >= base_height){
+            break;
         }
     }
     score *= tmp_val;
     tmp_val = 0;
     for (int i = y-1; i >= 0; i--)
     {
-        if (tmp_val == 0)
-        {
-                tmp_val = 1;
-        }
-        if (matrix[x][i] < base_height)
-        {
-            tmp_val++;
-        }
-        else
-        {
-            tmp_val--;
-            i = -1;
+        tmp_val++;
+        if (matrix[x][i] >= base_height){
+            break;
         }
     }
     score *= tmp_val;
     tmp_val = 0;
     for (int i = y+1; i < size; i++)
     {
-        if (tmp_val == 0)
-        {
-            tmp_val = 1;
-        }
-        if (matrix[x][i] < base_height)
-        {
-            tmp_val++;
-        }
-        else
-        {
-            tmp_val--;
-            i = size;
+        tmp_val++;
+        if (matrix[x][i] >= base_height){
+            break;
         }
     }
     score *= tmp_val;
