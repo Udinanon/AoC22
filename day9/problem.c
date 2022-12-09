@@ -4,76 +4,12 @@
 #include <stdbool.h>
 #include <math.h>
 
+#include "tools.h"
+
 #define matrix_size 1000
+#define N_KNOTS 9
 
-struct rope{
-    int head_pos[2];
-    int tail_pos[2];
-};
-
-void print_rope(struct rope* rope);
-void update_head(struct rope* rope, char dir);
-void update_tail(struct rope* rope);
-void update_matrix(int** matrix, struct rope *rope);
-int compute_visited(int **matrix);
-
-void print_rope(struct rope *rope){
-    printf("H POS %d %d T POS %d %d\n", rope->head_pos[0], rope->head_pos[1], rope->tail_pos[0], rope->tail_pos[1]);
-}
-
-void update_head(struct rope* rope, char dir){
-    switch (dir)
-    {
-    case 'R':
-        rope->head_pos[0]++;
-        break;
-    case 'U':
-        rope->head_pos[1]++;
-        break;
-    case 'L':
-        rope->head_pos[0]--;
-        break;
-    case 'D':
-        rope->head_pos[1]--;
-        break;
-    default:
-        printf("ERROR UNRECOGNIZED CHAR: %c\n", dir);
-        break;
-    }
-}
-
-void update_tail(struct rope* rope){
-    int diff_x = rope->head_pos[0] - rope->tail_pos[0];
-    int diff_y = rope->head_pos[1] - rope->tail_pos[1];
-    int taxt_dist = abs(diff_x) + abs(diff_y);
-    if ( (taxt_dist < 2) || (abs(diff_x) == abs(diff_y)) ){
-        // taxi < 2 is obvius
-        // diffx == diff_y meqans it's either 0,0 or 1,1, 2,2 is not spossible as it can't move diagonally
-        return;
-    }
-    rope->tail_pos[0] += (diff_x > 0) - (diff_x < 0);
-    rope->tail_pos[1] += (diff_y > 0) - (diff_y < 0);
-};
-
-void update_matrix(int** matrix, struct rope* rope){
-    int x=rope->tail_pos[0], y=rope->tail_pos[1];
-    matrix[x][y] = 1;
-}
-
-int compute_visited(int** matrix){
-    int counter = 0;
-    for (int i=0; i<matrix_size; i++){
-        for(int j=0; j<matrix_size; j++){
-            counter += matrix[i][j];
-        }
-    }
-    return counter;
-}
-
-int main(void)
-{
-
-
+int main(void){
     FILE* fp; // open file
     char crates_file[] = "./input.txt";
     if ((fp = fopen(crates_file, "r+")) == NULL)
@@ -99,8 +35,12 @@ int main(void)
     }
 
     // deaclare rope
-    struct rope rope = {{500, 500}, {500, 500}};
-    print_rope(&rope);
+    struct knot head = {{matrix_size / 2, matrix_size / 2}, 0, NULL, NULL};
+    struct knot* curr_knot = &head;
+    for(int i=1; i<N_KNOTS; i++){
+        curr_knot = create_knot(curr_knot, i);
+    }
+    print_rope(&head);
 
     // read lines in order
     line_size = getline(&line_buf, &line_buf_size, fp);
@@ -110,10 +50,10 @@ int main(void)
         int step = strtol(line_buf+2, NULL, 10);
         for(int i = 0; i< step; i++){
             // update head, tail and matrix
-            update_head(&rope, line_buf[0]);
-            update_tail(&rope);
-            update_matrix(visited_matrix, &rope);
-            print_rope(&rope);
+            update_head(&head, line_buf[0]);
+            update_tail(head.tail);
+            update_matrix(visited_matrix, &head);
+            print_rope(&head);
             }
         // prepare for and read next line
         line_count++;
